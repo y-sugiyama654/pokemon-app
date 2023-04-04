@@ -8,12 +8,13 @@ function App() {
   const initialURL = "https://pokeapi.co/api/v2/pokemon";
   const [loading, setLoading] = useState(true);
   const [pokemonData, setPokemonData] = useState([]);
+  const [nextURL, setNextURL] = useState("");
 
   useEffect(() => {
     const fetchPokemonData = async () => {
       let res = await getAllPokemon(initialURL);
       loadPokemon(res.results)
-      // console.log(res.results);
+      setNextURL(res.next);
       setLoading(false);
     };
     fetchPokemonData();
@@ -29,7 +30,13 @@ function App() {
     setPokemonData(_pokemonData)
   };
 
-  console.log(pokemonData);
+  const handleNextPage = async () => {
+    setLoading(true);
+    let data = await getAllPokemon(nextURL);
+    await loadPokemon(data.results);
+    setLoading(false);
+  };
+  const handlePrevPage = () => {};
 
   return (
     <>
@@ -38,11 +45,17 @@ function App() {
         {loading ? (
           <h1>ロード中.....</h1>
         ) : 
-          <div className="pokemonCardContainer">
+          <>
+            <div className="pokemonCardContainer">
             {pokemonData.map((pokemon, i) => {
               return <Card key={i} pokemon={pokemon} />;
             })}
-          </div>
+            </div>
+            <div className="btn">
+              <button onClick={handlePrevPage}>前へ</button>
+              <button onClick={handleNextPage}>次へ</button>
+            </div>
+          </>
         }
       </div>
     </>
